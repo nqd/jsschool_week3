@@ -30,12 +30,12 @@
         <div class="row well">
 
             <div class="col-xs-1">
-                <img src="<%= post.image %>"/>
+                <img src="<%= post.user.profile_image_url%>"/>
             </div>
             <div class="col-lg-9">
                 <div class="row">
                     <p>
-                        <strong><%= post.name %></strong> <%= post.username %><br>
+                        <strong><%= post.name %></strong> <%= post.description %><br>
                         <%- post.text %>
                     </p>
                 </div>
