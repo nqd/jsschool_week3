@@ -13,6 +13,7 @@ let flash = require('connect-flash')
 
 let passport = require('passport')
 let FacebookStrategy = require('passport-facebook').Strategy
+let TwitterStrategy = require('passport-twitter').Strategy
 
 let User = require('./app/models/user')
 
@@ -59,13 +60,33 @@ passport.use(new FacebookStrategy({
     'callbackURL': 'http://socialauthenticator.com:8000/auth/facebook/callback'
   },
   function(accessToken, refreshToken, profile, cb) {
-    console.log(`accessToken ${accessToken}`)
-    console.log(`refreshToken ${refreshToken}`)
-    console.log(`profile ${JSON.stringify(profile)}`)
     let user = new User({
       facebookId: {
         accessToken: accessToken,
         refreshToken: refreshToken,
+        profileId: profile.id 
+      }
+    });
+    user.save((err, user) => {
+      console.log(err)
+      console.log(user)
+      return cb();
+    })
+  }
+));
+
+passport.use(new TwitterStrategy({
+    consumerKey: 'Xs5cQV48wmf50kVNzqjwEksX0',
+    consumerSecret: 'dur74p4CPDBERnC62fyWtJVz32OeptXtvqtNIPWFbX3I652cOX',
+    callbackURL: 'http://socialauthenticator.com:8000/auth/twitter/callback'
+  },
+  function(token, tokenSecret, profile, cb) {
+    console.log('profile')
+    console.log(JSON.stringify(profile));
+    let user = new User({
+      twitterId: {
+        token: token,
+        tokenSecret: tokenSecret,
         profileId: profile.id 
       }
     });
@@ -85,7 +106,20 @@ app.get('/auth/facebook/callback',
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
-  });
+  }
+);
+
+app.get('/auth/twitter',
+  passport.authenticate('twitter'));
+
+app.get('/auth/twitter/callback', 
+  passport.authenticate('twitter', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  }
+);
+
 
 // configure routes
 // require('./app/routes')(app)

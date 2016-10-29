@@ -10,6 +10,11 @@ let UserSchema = mongoose.Schema({
     accessToken: String,
     refreshToken: String,
     profileId: String
+  },
+  twitterId: {
+    token: String,
+    tokenSecret: String,
+    profileId: String
   }
 })
 
