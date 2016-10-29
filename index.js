@@ -93,10 +93,21 @@ passport.use(new TwitterStrategy({
     user.save((err, user) => {
       console.log(err)
       console.log(user)
-      return cb();
+      return cb(err, user);
     })
   }
 ));
+
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+  cb(null, obj);
+});
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.get('/auth/facebook',
   passport.authenticate('facebook'));
@@ -122,7 +133,7 @@ app.get('/auth/twitter/callback',
 
 
 // configure routes
-// require('./app/routes')(app)
+require('./app/routes')(app)
 
 // start server
 app.listen(port, ()=> console.log(`Listening @ http://127.0.0.1:${port}`))
