@@ -46,7 +46,9 @@
                 </div>
             </div>
             <div class="col-xs-2">
-                <span class="btn <%= post.network.class %>"><span class="fa fa-<%= post.network.icon %>"></span> <%= post.network.name %></a>
+                <% if (post.network) { %>
+                    <span class="btn <%= post.network.class %>"><span class="fa fa-<%= post.network.icon %>"></span> <%= post.network.name %></a>
+                <% } %>
             </div>
         </div>
     <% } %>

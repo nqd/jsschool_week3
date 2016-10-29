@@ -76,8 +76,8 @@ passport.use(new FacebookStrategy({
 ));
 
 passport.use(new TwitterStrategy({
-    consumerKey: 'Xs5cQV48wmf50kVNzqjwEksX0',
-    consumerSecret: 'dur74p4CPDBERnC62fyWtJVz32OeptXtvqtNIPWFbX3I652cOX',
+    consumerKey: process.env.TWITTER_CONSUMER_KEY,
+    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
     callbackURL: 'http://socialauthenticator.com:8000/auth/twitter/callback'
   },
   function(token, tokenSecret, profile, cb) {
@@ -91,8 +91,6 @@ passport.use(new TwitterStrategy({
       }
     });
     user.save((err, user) => {
-      console.log(err)
-      console.log(user)
       return cb(err, user);
     })
   }
