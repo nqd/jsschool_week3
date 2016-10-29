@@ -11,7 +11,12 @@ let mongoose = require('mongoose')
 let requireDir = require('require-dir')
 let flash = require('connect-flash')
 
-let passportMiddleware = require('./app/middlewares/passport')
+let passport = require('passport')
+let FacebookStrategy = require('passport-facebook').Strategy
+
+let User = require('./app/models/user')
+
+// let passportMiddleware = require('./app/middlewares/passport')
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 
@@ -19,8 +24,8 @@ let app = express(),
   config = requireDir('./config', {recurse: true}),
   port = process.env.PORT || 8000
 
-passportMiddleware.configure(config.auth[NODE_ENV])
-app.passport = passportMiddleware.passport
+// passportMiddleware.configure(config.auth[NODE_ENV])
+// app.passport = passportMiddleware.passport
 
 // connect to the database
 mongoose.connect(config.database[NODE_ENV].url)
@@ -37,20 +42,53 @@ app.set('view engine', 'ejs') // set up ejs for templating
 // required for passport
 app.use(session({
   secret: 'ilovethenodejs',
-  store: new MongoStore({db: 'social-feeder'}),
   resave: true,
   saveUninitialized: true
 }))
 
 // Setup passport authentication middleware
-app.use(app.passport.initialize())
+// app.use(app.passport.initialize())
 // persistent login sessions
-app.use(app.passport.session())
+// app.use(app.passport.session())
 // Flash messages stored in session
 app.use(flash())
 
+passport.use(new FacebookStrategy({
+    'clientID': '319319811769506',
+    'clientSecret': 'b4d1530b8ef0bc2a44c054334deaae8e',
+    'callbackURL': 'http://socialauthenticator.com:8000/auth/facebook/callback'
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(`accessToken ${accessToken}`)
+    console.log(`refreshToken ${refreshToken}`)
+    console.log(`profile ${JSON.stringify(profile)}`)
+    let user = new User({
+      facebookId: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        profileId: profile.id 
+      }
+    });
+    user.save((err, user) => {
+      console.log(err)
+      console.log(user)
+      return cb();
+    })
+  }
+));
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
 // configure routes
-require('./app/routes')(app)
+// require('./app/routes')(app)
 
 // start server
 app.listen(port, ()=> console.log(`Listening @ http://127.0.0.1:${port}`))
