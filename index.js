@@ -81,8 +81,6 @@ passport.use(new TwitterStrategy({
     callbackURL: 'http://socialauthenticator.com:8000/auth/twitter/callback'
   },
   function(token, tokenSecret, profile, cb) {
-    console.log('profile')
-    console.log(JSON.stringify(profile));
     let user = new User({
       twitterId: {
         token: token,

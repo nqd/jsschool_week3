@@ -16,9 +16,22 @@ module.exports = (app) => {
       access_token_secret: req.user.twitterId.tokenSecret
     });
     client.get('statuses/home_timeline', { count: 20 }, function(error, tweets, response) {
-      let posts = require('../data/posts.js')
-      res.render('timeline.ejs', {message: req.flash('error'), posts: tweets})
-      // res.render('timeline.ejs', {message: req.flash('error'), posts: posts})
+      let posts = tweets.map(obj => {
+        return {
+          id: obj.id,
+          image: obj.user.profile_image_url,
+          text: obj.text,
+          name: obj.description,
+          username: obj.username,
+          liked: true,
+          network: {
+            icon: 'twitter',
+            name: 'Twitter',
+            class: 'btn-info'
+          }
+        }
+      })
+      res.render('timeline.ejs', {message: req.flash('error'), posts: posts})
     })
   })
 }

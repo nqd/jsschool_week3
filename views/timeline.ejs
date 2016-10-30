@@ -7,7 +7,6 @@
     <style>
         body { padding-top:80px; word-wrap:break-word; }
         ._icons > a, ._icons > a:visited, ._icons > a:hover, ._icons > a:active { color: inherit; }
-
     </style>
 </head>
 <body>
@@ -28,14 +27,13 @@
 
     <% for(var post,i=0; post=posts[i]; i++) {%>
         <div class="row well">
-
             <div class="col-xs-1">
-                <img src="<%= post.user.profile_image_url%>"/>
+                <img src="<%= post.image %>"/>
             </div>
             <div class="col-lg-9">
                 <div class="row">
                     <p>
-                        <strong><%= post.name %></strong> <%= post.description %><br>
+                        <strong><%= post.name %></strong> <%= post.username %><br>
                         <%- post.text %>
                     </p>
                 </div>
@@ -46,9 +44,7 @@
                 </div>
             </div>
             <div class="col-xs-2">
-                <% if (post.network) { %>
-                    <span class="btn <%= post.network.class %>"><span class="fa fa-<%= post.network.icon %>"></span> <%= post.network.name %></a>
-                <% } %>
+                <span class="btn <%= post.network.class %>"><span class="fa fa-<%= post.network.icon %>"></span> <%= post.network.name %></a>
             </div>
         </div>
     <% } %>
