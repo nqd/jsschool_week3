@@ -32,7 +32,9 @@ Time spent: `<Number of hours spent>`
 
 ### Walkthrough
 
-![Video Walkthrough](...)
+*login and like, unlike*
+
+![](https://raw.githubusercontent.com/nqd/jsschool_week3/master/rec/ezgif.com-video-to-gif.gif)
 
 
 

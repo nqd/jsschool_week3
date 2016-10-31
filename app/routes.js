@@ -62,4 +62,8 @@ module.exports = (app) => {
       res.redirect('/timeline')
     })
   })
+
+  app.get('/reply/:id', isLoggedIn, (req, res) => {
+    res.render('reply.ejs', {message: req.flash('error')})
+  })
 }
