@@ -4,7 +4,7 @@
  */
 
 let isLoggedIn = require('./middlewares/isLoggedIn')
-let Twitter = require('twitter')
+let twitterClient = require('./middlewares/twitterClient')
 
 module.exports = (app) => {
   let passport = app.passport
@@ -13,78 +13,46 @@ module.exports = (app) => {
     res.render('index.ejs', {message: req.flash('error')})
   })
 
-  app.get('/timeline', isLoggedIn, (req, res) => {
-    let client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: req.user.twitterId.token,
-      access_token_secret: req.user.twitterId.tokenSecret
-    });
-    client.get('statuses/home_timeline', { count: 20 }, function(error, tweets, response) {
+  app.get('/timeline', isLoggedIn, twitterClient, (req, res) => {
+    req.twitterClient.get('statuses/home_timeline', { count: 20 }, function(error, tweets, response) {
       let posts = tweets.map(filtedTweet)
       res.render('timeline.ejs', {message: req.flash('error'), posts: posts})
     })
   })
 
-  app.post('/like/:id', isLoggedIn, (req, res) => {
+  app.post('/like/:id', isLoggedIn, twitterClient, (req, res) => {
     let id = req.params.id
-    let client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: req.user.twitterId.token,
-      access_token_secret: req.user.twitterId.tokenSecret
-    });
-    client.post('favorites/create', { id: id }, function(error, tweets, response) {
+    req.twitterClient.post('favorites/create', { id: id }, function(error, tweets, response) {
       console.log(`error ${error}`)
       res.redirect('/timeline')
     })
   })
 
-  app.post('/unlike/:id', isLoggedIn, (req, res) => {
+  app.post('/unlike/:id', isLoggedIn, twitterClient, (req, res) => {
     let id = req.params.id
-    let client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: req.user.twitterId.token,
-      access_token_secret: req.user.twitterId.tokenSecret
-    });
-    client.post('favorites/destroy', { id: id }, function(error, tweets, response) {
+    req.twitterClient.post('favorites/destroy', { id: id }, function(error, tweets, response) {
       console.log(`error ${error}`)
       res.redirect('/timeline')
     })
   })
 
-  app.get('/reply/:id', isLoggedIn, (req, res) => {
+  app.get('/reply/:id', isLoggedIn, twitterClient, (req, res) => {
     let id = req.params.id
-    let client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: req.user.twitterId.token,
-      access_token_secret: req.user.twitterId.tokenSecret
-    });
-
-    client.get(`statuses/show/${id}`, (error, tweet, response) => {
+    req.twitterClient.get(`statuses/show/${id}`, (error, tweet, response) => {
       if (error) return res.redirect('/timeline')
 
       res.render('reply.ejs', {message: req.flash('error'), post: filtedTweet(tweet)})
     })
   })
 
-  app.post('/reply/:id', isLoggedIn, (req, res) => {
-    console.log(req.query);
+  app.post('/reply/:id', isLoggedIn, twitterClient, (req, res) => {
     let reply = req.body.reply
     if (!reply) {
       // todo: showing error when missing the tweet
       return res.redirect('/timeline')
     }
-    let client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: req.user.twitterId.token,
-      access_token_secret: req.user.twitterId.tokenSecret
-    })
 
-    client.post('statuses/update',
+    req.twitterClient.post('statuses/update',
       { in_reply_to_status_id: req.params.id, status: reply},
       (error, tweet, response) => {
         // todo: showing error when update failed
