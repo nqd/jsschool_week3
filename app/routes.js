@@ -1,3 +1,8 @@
+/*
+ * todo: when error, display the flash message
+ * well, i dont know flash well, will update if have some time 
+ */
+
 let isLoggedIn = require('./middlewares/isLoggedIn')
 let Twitter = require('twitter')
 
@@ -16,21 +21,7 @@ module.exports = (app) => {
       access_token_secret: req.user.twitterId.tokenSecret
     });
     client.get('statuses/home_timeline', { count: 20 }, function(error, tweets, response) {
-      let posts = tweets.map(obj => {
-        return {
-          id: obj.id_str,
-          image: obj.user.profile_image_url,
-          text: obj.text,
-          name: obj.description,
-          username: obj.username,
-          liked: obj.favorited,
-          network: {
-            icon: 'twitter',
-            name: 'Twitter',
-            class: 'btn-info'
-          }
-        }
-      })
+      let posts = tweets.map(filtedTweet)
       res.render('timeline.ejs', {message: req.flash('error'), posts: posts})
     })
   })
@@ -64,6 +55,57 @@ module.exports = (app) => {
   })
 
   app.get('/reply/:id', isLoggedIn, (req, res) => {
-    res.render('reply.ejs', {message: req.flash('error')})
+    let id = req.params.id
+    let client = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: req.user.twitterId.token,
+      access_token_secret: req.user.twitterId.tokenSecret
+    });
+
+    client.get(`statuses/show/${id}`, (error, tweet, response) => {
+      if (error) return res.redirect('/timeline')
+
+      res.render('reply.ejs', {message: req.flash('error'), post: filtedTweet(tweet)})
+    })
   })
+
+  app.post('/reply/:id', isLoggedIn, (req, res) => {
+    console.log(req.query);
+    let reply = req.body.reply
+    if (!reply) {
+      // todo: showing error when missing the tweet
+      return res.redirect('/timeline')
+    }
+    let client = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: req.user.twitterId.token,
+      access_token_secret: req.user.twitterId.tokenSecret
+    })
+
+    client.post('statuses/update',
+      { in_reply_to_status_id: req.params.id, status: reply},
+      (error, tweet, response) => {
+        // todo: showing error when update failed
+        return res.redirect('/timeline')
+      }
+    )
+  })
+}
+
+function filtedTweet(tweet) {
+  return {
+    id: tweet.id_str,
+    image: tweet.user.profile_image_url,
+    text: tweet.text,
+    name: tweet.description,
+    username: tweet.username,
+    liked: tweet.favorited,
+    network: {
+      icon: 'twitter',
+      name: 'Twitter',
+      class: 'btn-info'
+    }
+  }
 }
