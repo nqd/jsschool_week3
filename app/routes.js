@@ -60,6 +60,25 @@ module.exports = (app) => {
       }
     )
   })
+
+  app.get('/compose', isLoggedIn, twitterClient, (req, res) => {
+    res.render('compose.ejs')
+  })
+
+  app.post('/compose', isLoggedIn, twitterClient, (req, res) => {
+    let reply = req.body.reply
+    if (!reply) {
+      // todo: showing error when missing the tweet
+      return res.redirect('/timeline')
+    }
+    req.twitterClient.post('statuses/update',
+      { status: reply },
+      (error, tweet, response) => {
+        // todo: showing error when update failed
+        return res.redirect('/timeline')
+      }
+    )
+  })
 }
 
 function filtedTweet(tweet) {
