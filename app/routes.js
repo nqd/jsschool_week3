@@ -79,6 +79,31 @@ module.exports = (app) => {
       }
     )
   })
+
+  app.get('/share/:id', isLoggedIn, twitterClient, (req, res) => {
+    req.twitterClient.get(`statuses/show/${req.params.id}`, (error, tweet, response) => {
+      if (error) return res.redirect('/timeline')
+
+      res.render('share.ejs', {message: req.flash('error'), post: filtedTweet(tweet)})
+    })
+  })
+
+  app.post('/share/:id', isLoggedIn, twitterClient, (req, res) => {
+    let share = req.body.share
+    if (!share) {
+      // todo: showing error when missing the tweet
+      return res.redirect('/timeline')
+    }
+
+    req.twitterClient.post('statuses/retweet',
+      { id: req.params.id },
+      (error, tweet, response) => {
+        console.log(`retweet error ${JSON.stringify(error)}`)
+        // todo: showing error when update failed
+        return res.redirect('/timeline')
+      }
+    )
+  })
 }
 
 function filtedTweet(tweet) {
