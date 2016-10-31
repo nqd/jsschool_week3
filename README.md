@@ -32,9 +32,11 @@ Time spent: `<Number of hours spent>`
 
 ### Walkthrough
 
-*login and like, unlike*
+#### login and like, unlike
 
-![](https://raw.githubusercontent.com/nqd/jsschool_week3/master/rec/ezgif.com-video-to-gif.gif)
+![](https://raw.githubusercontent.com/nqd/jsschool_week3/master/rec/login-like-unlike.gif)
 
 
+#### reply and compose
 
+![](https://raw.githubusercontent.com/nqd/jsschool_week3/master/rec/post-reply.gif)
