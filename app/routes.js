@@ -7,7 +7,28 @@ let isLoggedIn = require('./middlewares/isLoggedIn')
 let twitterClient = require('./middlewares/twitterClient')
 
 module.exports = (app) => {
-  let passport = app.passport
+  app.get('/auth/facebook',
+    app.passport.authenticate('facebook'));
+
+  app.get('/auth/facebook/callback',
+    app.passport.authenticate('facebook', { failureRedirect: '/login' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/');
+    }
+  );
+
+  app.get('/auth/twitter',
+    app.passport.authenticate('twitter'));
+
+  app.get('/auth/twitter/callback', 
+    app.passport.authenticate('twitter', { failureRedirect: '/login' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/timeline');
+    }
+  );
+
 
   app.get('/', (req, res) => {
     res.render('index.ejs', {message: req.flash('error')})
